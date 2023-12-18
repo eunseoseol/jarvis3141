@@ -9,12 +9,10 @@ export default function Page() {
   const hoverStyle = {
     maxWidth: '150px',
     marginBottom: '20px',
-    transition: 'transform 0.3s ease-in-out'
   };
   const mobilehoverStyle = {
-    maxWidth: '150px',
-    marginBottom: '0px',
-    transition: 'transform 0.3s ease-in-out'
+    maxWidth: '80px',
+    marginBottom: '10px',
   };
   useEffect(() => {
     const handleResize = () => {
@@ -49,8 +47,6 @@ export default function Page() {
   }}>
   
   <a   href="https://apps.apple.com/th/app/jarvis-time-assistant/id1672236359"
-               onMouseOver={(e) => e.currentTarget.firstChild.style.transform = 'scale(0.55)'}
-               onMouseOut={(e) => e.currentTarget.firstChild.style.transform = 'scale(0.5)'}
             >
               <img src="/book.png" alt="Book" style={mobilehoverStyle} />
             </a>
@@ -101,8 +97,6 @@ export default function Page() {
 }}>
 
 <a   href="https://apps.apple.com/th/app/jarvis-time-assistant/id1672236359"
-             onMouseOver={(e) => e.currentTarget.firstChild.style.transform = 'scale(1.1)'}
-             onMouseOut={(e) => e.currentTarget.firstChild.style.transform = 'scale(1)'}
           >
             <img src="/book.png" alt="Book" style={hoverStyle} />
           </a>
