@@ -33,3 +33,8 @@ body {
 .selected-image {
   border: 2px solid green;
 }
+/* styles/globals.css */
+.content-container {
+  padding-left: 30%;
+  padding-right: 30%;
+}

@@ -30,13 +30,21 @@ const Article = ({ params }) => {
 
   return (
     <main className="p-4">
+
+<div className="content-container">
+
       <h1 className="text-2xl font-bold">{article.title}</h1>
+
+
+
       <div className="mt-4" dangerouslySetInnerHTML={{ __html: article.content }}></div>
       <Link href="/">
         <button className="bg-blue-500 text-white p-2 rounded mt-4 inline-block">
-          Back to Articles
+          홈으로 돌아가기
         </button>
       </Link>
+
+    </div>  
     </main>
   );
 };
