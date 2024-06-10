@@ -28,11 +28,11 @@ const Page = () => {
     const fetchUserProfile = async () => {
       if (user) {
         // Fetch articles
-        const q = query(collection(db, 'JarvisArticle'), where('author', '==', user.email));
+        const q = query(collection(db, 'JarvisArticles'), where('author', '==', user.email));
         const querySnapshot = await getDocs(q);
         const articlesData = await Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
           const data = docSnapshot.data();
-          const userDocRef = doc(db, 'users', data.author);
+          const userDocRef = doc(db, 'Jusers', data.author);
           const userDocSnapshot = await getDoc(userDocRef);
           const userData = userDocSnapshot.exists() ? userDocSnapshot.data() : { profile: { name: 'Unknown', profileImage: null } };
           return {
@@ -45,7 +45,7 @@ const Page = () => {
         setArticles(articlesData);
 
         // Fetch user profile data
-        const userDocRef = doc(db, 'users', user.email);
+        const userDocRef = doc(db, 'Jusers', user.email);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -85,7 +85,7 @@ const Page = () => {
           setProfilePic(downloadURL);
 
           // Save URL to Firestore
-          const userDocRef = doc(db, 'users', user.email);
+          const userDocRef = doc(db, 'Jusers', user.email);
           await updateDoc(userDocRef, {
             profileImage: downloadURL,
           });
@@ -95,7 +95,7 @@ const Page = () => {
   };
 
   const handleSaveProfile = async () => {
-    const userDocRef = doc(db, 'users', user.email);
+    const userDocRef = doc(db, 'Jusers', user.email);
     await updateDoc(userDocRef, {
       bio,
       socialLinks,
@@ -145,7 +145,7 @@ const Page = () => {
   const handleDelete = async (id) => {
     if (confirm("Are you sure you want to delete this article?")) {
       try {
-        await deleteDoc(doc(db, 'JarvisArticle', id));
+        await deleteDoc(doc(db, 'JarvisArticles', id));
         setArticles(articles.filter(article => article.id !== id));
         alert("Article deleted successfully.");
       } catch (error) {
