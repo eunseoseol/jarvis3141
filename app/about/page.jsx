@@ -6,6 +6,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { storage, db } from "../firebase";  // firebase.js 파일 경로에 맞게 수정
 import { collection, addDoc } from 'firebase/firestore';
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { useRouter } from 'next/navigation';
+import '../globals.css';  // Ensure this import points to your global CSS file
 
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 
@@ -15,6 +18,21 @@ const Page = () => {
   const quillRef = useRef(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (quillRef.current) {
@@ -94,21 +112,41 @@ const Page = () => {
       let currentIndex = range ? range.index : 0;
       downloadURLs.forEach(url => {
         quill.insertEmbed(currentIndex, 'image', url, 'user');
-        currentIndex += 1;  // 이미지 삽입 후 커서를 다음 위치로 이동
+        quill.setSelection(currentIndex + 1);
+        quill.insertText(currentIndex + 1, '\n');
+        currentIndex += 2;  // 이미지와 줄 바꿈 후 커서를 다음 위치로 이동
+      });
+
+      // Add border radius to the images
+      quill.root.querySelectorAll('img').forEach(img => {
+        img.style.borderRadius = '16px';
       });
     };
   };
 
   const handleSubmit = async () => {
+    if (!title.trim() || !content.trim()) {
+      alert("제목이나 내용을 채워주세요.");
+      return;
+    }
+
     setIsLoading(true);
     try {
+      if (!user) {
+        alert("You must be logged in to save an article.");
+        setIsLoading(false);
+        return;
+      }
+
       await addDoc(collection(db, "JarvisArticle"), {
         title: title,
         content: content,
+        author: user.email,
         createdAt: new Date()
       });
       alert("Article saved successfully!");
       setIsLoading(false);
+      router.push('/');  // 홈 화면으로 리디렉션
     } catch (e) {
       console.error("Error adding document: ", e);
       alert("Error saving article.");
@@ -131,39 +169,43 @@ const Page = () => {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">아티클을 써보세요.</h1>
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">Title</label>
-        <input
-          type="text"
-          className="border rounded w-full p-2"
-          placeholder="Enter the title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-2">Content</label>
-        <div style={{ height: '800px' }}>
-          <ReactQuill
-            ref={quillRef}
-            value={content}
-            onChange={setContent}
-            modules={modules}
-            className="border rounded"
-            style={{ height: '100%', maxHeight: '100%' }}  // 여기서 높이를 지정합니다.
+    <div className="content-container">
+      <div className="p-4">
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Title</label>
+          <input
+            type="text"
+            className="border rounded w-full p-2"
+            placeholder="제목을 입력해주세요."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            style={{ borderRadius: '16px' }} // cornerRadius 추가
           />
         </div>
+        <div className="mb-4" style={{ height: 'calc(100vh - 300px)' }}>
+          <label className="block text-sm font-medium mb-2">Content</label>
+          <div style={{ height: '80%' }}>
+            <ReactQuill
+              ref={quillRef}
+              value={content}
+              onChange={setContent}
+              modules={modules}
+              className="border rounded"
+              style={{ height: '80%', borderRadius: '16px' }}  // cornerRadius 추가
+            />
+          </div>
+        </div>
+        <div className="flex justify-end mt-4">
+          <button
+            type="button"
+            className="bg-blue-500 text-white py-2 px-4 rounded-full"
+            onClick={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? '업로드 중...' : '업로드'}
+          </button>
+        </div>
       </div>
-      <button
-        type="button"
-        className="bg-blue-500 text-white p-2 rounded"
-        onClick={handleSubmit}
-        disabled={isLoading}
-      >
-        {isLoading ? 'Uploading...' : 'Submit'}
-      </button>
     </div>
   );
 };
