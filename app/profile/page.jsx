@@ -32,7 +32,7 @@ const Page = () => {
         const querySnapshot = await getDocs(q);
         const articlesData = await Promise.all(querySnapshot.docs.map(async (docSnapshot) => {
           const data = docSnapshot.data();
-          const userDocRef = doc(db, 'Jusers', data.author);
+          const userDocRef = doc(db, 'users', data.author);
           const userDocSnapshot = await getDoc(userDocRef);
           const userData = userDocSnapshot.exists() ? userDocSnapshot.data() : { profile: { name: 'Unknown', profileImage: null } };
           return {
@@ -45,7 +45,7 @@ const Page = () => {
         setArticles(articlesData);
 
         // Fetch user profile data
-        const userDocRef = doc(db, 'Jusers', user.email);
+        const userDocRef = doc(db, 'users', user.email);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const userData = userDoc.data();
@@ -95,7 +95,7 @@ const Page = () => {
   };
 
   const handleSaveProfile = async () => {
-    const userDocRef = doc(db, 'Jusers', user.email);
+    const userDocRef = doc(db, 'users', user.email);
     await updateDoc(userDocRef, {
       bio,
       socialLinks,
