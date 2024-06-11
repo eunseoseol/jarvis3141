@@ -138,7 +138,7 @@ const Page = () => {
         return;
       }
 
-      await addDoc(collection(db, "JarvisArticle"), {
+      await addDoc(collection(db, "JarvisArticles"), {
         title: title,
         content: content,
         author: user.email,
